@@ -1,0 +1,2 @@
+# AdlGamesNew
+Atualização AdlGames Studio
