@@ -1,46 +1,12 @@
-// Menu hambúrguer
-document.querySelector('.hamburger').addEventListener('click', function() {
-    this.classList.toggle('active');
-    document.querySelector('.mobile-menu').classList.toggle('active');
-});
-
-// Fechar menu ao clicar em um link
-document.querySelectorAll('.mobile-menu a').forEach(link => {
-    link.addEventListener('click', () => {
-        document.querySelector('.hamburger').classList.remove('active');
-        document.querySelector('.mobile-menu').classList.remove('active');
-    });
-});
-
-// Ano atual no footer
-document.getElementById('current-year').textContent = new Date().getFullYear();
-
-// Sistema de cookies
-function checkCookies() {
-    if (!localStorage.getItem('cookiesAccepted')) {
-        document.querySelector('.cookie-consent').style.display = 'flex';
-    }
-}
-
-function acceptCookies() {
-    localStorage.setItem('cookiesAccepted', 'true');
-    document.querySelector('.cookie-consent').style.display = 'none';
-}
-
-// Verificar cookies ao carregar a página
-window.addEventListener('DOMContentLoaded', checkCookies);
-
-// Sistema de tema claro/escuro
+// Sistema de Tema
 function setupTheme() {
     const savedTheme = localStorage.getItem('theme') || 'light';
     setTheme(savedTheme);
     
-    document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
-    
-    const mobileToggle = document.getElementById('theme-toggle-mobile');
-    if (mobileToggle) {
-        mobileToggle.addEventListener('click', toggleTheme);
-    }
+    // Configurar listeners para todos os botões de tema
+    document.querySelectorAll('[id^="theme-toggle"]').forEach(button => {
+        button.addEventListener('click', toggleTheme);
+    });
 }
 
 function toggleTheme() {
@@ -53,17 +19,19 @@ function toggleTheme() {
 function setTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
     
-    // Atualizar texto do botão
+    // Atualizar todos os botões de tema
     const themeEmoji = theme === 'dark' ? '🌞' : '🌙';
-    document.getElementById('theme-toggle').textContent = themeEmoji;
+    const themeText = theme === 'dark' ? 'Tema Claro' : 'Tema Escuro';
     
-    const mobileToggle = document.getElementById('theme-toggle-mobile');
-    if (mobileToggle) {
-        mobileToggle.textContent = `${themeEmoji} ${theme === 'dark' ? 'Claro' : 'Escuro'}`;
-    }
+    document.querySelectorAll('[id^="theme-toggle"]').forEach(button => {
+        button.innerHTML = `${themeEmoji} <span data-i18n="toggleTheme">${themeText}</span>`;
+    });
+    
+    // Atualizar textos traduzidos
+    updateTexts(document.documentElement.getAttribute('lang') || 'pt-BR');
 }
 
-// Sistema de internacionalização
+// Sistema de Idiomas
 function changeLanguage(lang) {
     localStorage.setItem('preferredLanguage', lang);
     document.getElementById('html-tag').setAttribute('lang', lang);
@@ -88,14 +56,15 @@ function updateTexts(lang) {
             'ourProjects': 'Nossos Projetos',
             'learnMore': 'Saiba Mais',
             'accountSection': 'Seção de Conta',
-            'comingSoonFeature': 'Em breve! Estamos trabalhando nesta funcionalidade.'
+            'comingSoonFeature': 'Em breve! Estamos trabalhando nesta funcionalidade.',
+            'toggleTheme': 'Alternar Tema'
         },
         'en': {
             'home': 'Home',
             'games': 'Games',
             'projects': 'Projects',
             'account': 'Account',
-            'cookieMessage': 'This website uses cookies to improve your experience. By continuing, you agree to our use of cookies.',
+            'cookieMessage': 'This website uses cookies to improve your experience. By continuing, you agree with our use of cookies.',
             'acceptCookies': 'Accept',
             'welcome': 'Welcome to AdlGames Studio',
             'welcomeMessage': 'Creating amazing and innovative gaming experiences',
@@ -106,7 +75,8 @@ function updateTexts(lang) {
             'ourProjects': 'Our Projects',
             'learnMore': 'Learn More',
             'accountSection': 'Account Section',
-            'comingSoonFeature': 'Coming soon! We are working on this feature.'
+            'comingSoonFeature': 'Coming soon! We are working on this feature.',
+            'toggleTheme': 'Toggle Theme'
         }
     };
     
@@ -118,41 +88,38 @@ function updateTexts(lang) {
     });
 }
 
-// Detectar idioma preferido do usuário
-function detectUserLanguage() {
-    const savedLang = localStorage.getItem('preferredLanguage');
-    if (savedLang) {
-        return savedLang;
-    }
-    
-    const browserLang = navigator.language || navigator.userLanguage;
-    if (browserLang.startsWith('pt')) {
-        return 'pt-BR';
-    } else {
-        return 'en';
+// Sistema de Cookies
+function checkCookies() {
+    if (!localStorage.getItem('cookiesAccepted')) {
+        document.querySelector('.cookie-consent').style.display = 'flex';
     }
 }
 
-// Inicializar tudo quando a página carregar
-window.addEventListener('DOMContentLoaded', () => {
+function acceptCookies() {
+    localStorage.setItem('cookiesAccepted', 'true');
+    document.querySelector('.cookie-consent').style.display = 'none';
+}
+
+// Detectar preferências do usuário
+function detectUserPreferences() {
     // Idioma
-    const lang = detectUserLanguage();
+    const savedLang = localStorage.getItem('preferredLanguage');
+    const browserLang = navigator.language || navigator.userLanguage;
+    const lang = savedLang || (browserLang.startsWith('pt') ? 'pt-BR' : 'en');
     changeLanguage(lang);
     
     // Tema
-    setupTheme();
-    
-    // Verificar se é mobile para ajustes específicos
-    if (window.innerWidth <= 768) {
-        document.body.classList.add('mobile');
-    }
-});
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    setTheme(savedTheme);
+}
 
-// Atualizar ao redimensionar
-window.addEventListener('resize', () => {
-    if (window.innerWidth <= 768) {
-        document.body.classList.add('mobile');
-    } else {
-        document.body.classList.remove('mobile');
-    }
+// Inicializar tudo quando a página carregar
+document.addEventListener('DOMContentLoaded', function() {
+    // Ano atual no footer
+    document.getElementById('current-year').textContent = new Date().getFullYear();
+    
+    // Configurar funcionalidades
+    setupTheme();
+    detectUserPreferences();
+    checkCookies();
 });
